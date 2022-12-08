@@ -11,27 +11,23 @@ def load_data(
                 labeled_data_step: int = 600000,
                 traking: bool = False 
                 )-> pd.DataFrame:
+    """_summary_
 
-    """" This function loads the data from the csv file and returns a dataframe 
-    
-    Parameters
-    ----------
-    path_data : str 
-        path to the data folder
-    name_csv_features : str 
-        name of the csv file containing the features
-    name_csv_labels : str 
-        name of the csv file containing the labels
-    delay : int 
-        delay in seconds between the features and the labels
-    labeled_data_step : int 
-        step label step
-        
-    Returns
-    -------
-    df : pd.DataFrame 
-        dataframe containing the features and the labels concatenated
-        """
+    :param path_data: path where is the data csv, defaults to "data/"
+    :type path_data: str, optional
+    :param name_csv_features: name of csv features, defaults to "features.csv"
+    :type name_csv_features: str, optional
+    :param name_csv_labels: path where is the data csv, defaults to None
+    :type name_csv_labels: str, optional
+    :param delay: _description_, defaults to 150
+    :type delay: int, optional
+    :param labeled_data_step: _description_, defaults to 600000
+    :type labeled_data_step: int, optional
+    :param traking: _description_, defaults to False
+    :type traking: bool, optional
+    :return: _description_
+    :rtype: pd.DataFrame
+    """
 
     # load data csv
     inputs = pd.read_csv(path_data + name_csv_features, low_memory=False)
