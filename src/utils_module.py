@@ -2,11 +2,12 @@ import pandas as pd
 import numpy as np
 import logging
 
+# add description to module
 
 def load_data(  
                 path_data: str = "data/",
-                name_csv_features: str = "features.csv", 
-                name_csv_labels: str = None, 
+                name_csv_features: str = "features.csv",
+                name_csv_labels: str = None,  # TODO None to "", is not for !=
                 delay: int = 150, 
                 labeled_data_step: int = 600000,
                 traking: bool = False 
@@ -29,17 +30,11 @@ def load_data(
     :rtype: pd.DataFrame
     """
 
-    # load data csv
     inputs = pd.read_csv(path_data + name_csv_features, low_memory=False)
 
     # if name_csv_labels difers from None, load the labels else dont use labels
-    if name_csv_labels != None:
+    if name_csv_labels is not None:
         labels = pd.read_csv(path_data + name_csv_labels, low_memory=False)
-
-
-
-    # labels = pd.read_csv( name_csv_labels, low_memory=False)
-    # inputs = pd.read_csv( name_csv_features, low_memory=False)
 
     # crop data for synchronization
     inputs = pd.DataFrame(inputs[delay:])
@@ -53,7 +48,7 @@ def load_data(
     inputs.reset_index(drop=True, inplace=True)
 
     # df is composed by inputs and labels
-    if name_csv_labels != None:
+    if name_csv_labels is not None:
         df = pd.concat([inputs, labels], axis=1)
         # the label is not float. it's a category
         # convert to int
@@ -61,14 +56,13 @@ def load_data(
     else:
         df = inputs
 
-    if labeled_data_step != None:
+    if labeled_data_step is not None:
         # use the first labeled_data_step samples because just [0:600000] are labeled
         df = df[:labeled_data_step]
 
-    # report process in logging
+    # report process in logging TODO if tracking , correct traking to tracking
     logging.info(f"Data loaded from {path_data + name_csv_features}")
 
-    # return the dataframe
     return df
 
 def arr_to_dataframe(   data_to_add: np.ndarray,
@@ -96,7 +90,7 @@ def arr_to_dataframe(   data_to_add: np.ndarray,
         dataframe
     """
 
-    # using logging
+    # using logging # TODO find the better way to do this
     if traking:
         logging.info(msg="Converting numpy array to dataframe, the shape of the numpy array is: "
         + str(data_to_add.shape) +
@@ -150,7 +144,7 @@ def create_labels(
     y_test_2 = np.full(dim_0, 2)
     
     if debug:
-        print("-----------------5----------------------")
+        print("-----------------5----------------------") # TODO refactor
         print(  "\n","y_train_0 shape : ", y_train_0.shape,
                 "\n","y_train_1 shape : ", y_train_1.shape,
                 "\n","y_train_2 shape : ", y_train_2.shape)

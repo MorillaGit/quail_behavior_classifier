@@ -226,14 +226,15 @@ def run_experiment_cnn(
     optimizer = Adam, 
     learning_rate = 0.005, 
     metrics = ['accuracy'], 
+    num_classes = 3,
     loss = 'sparse_categorical_crossentropy'):
 
 
     with mlflow.start_run() as run:
 
-        model = deep_learning_module.create_model_cnn_basic(input_shape_dataset, num_classes, debug=False)
+        model = deep_learning_module.create_model_cnn_basic(input_shape, num_classes, debug=False)
 
-        mlflow.log_param("input_shape_dataset", input_shape_dataset)
+        mlflow.log_param("input_shape_dataset", input_shape)
         mlflow.log_param("num_classes", num_classes)
         mlflow.log_param("num_layers_conv", 1)
         mlflow.log_param("num_layers_dense", 1)
@@ -250,7 +251,7 @@ def run_experiment_cnn(
         mlflow.log_param("loss", loss)
 
         # log interpolation
-        mlflow.log_param("interpolation", interpolation)
+        # mlflow.log_param("interpolation", interpolation)
 
         # fit model
         history = model.fit(X_train, y_train,
@@ -312,8 +313,8 @@ def run_experiment_cnn(
         mlflow.log_artifact('confusion_matrix.png')
 
         # save the model trained, with name model "interpotation value" .h5, and timestamp
-        timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        model.save("model"+str(interpolation)+timestamp+".h5")
+        # timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        # model.save("model"+str(interpolation)+timestamp+".h5")
         # model.save('model.h5')
 
         # curve roc TODO

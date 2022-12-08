@@ -11,9 +11,9 @@ import random
 
 
 
-def conver_datframe_to_numpy(   df: pd.DataFrame, 
+def conver_datframe_to_numpy(   df: pd.DataFrame, # TODO: conver to convert, datframe to dataframe
                                 columns: list = None,
-                                debug : bool = True, 
+                                debug : bool = True, # TODO: unused
                                 traking: bool = False
                                 ) -> np.ndarray:
 
@@ -30,7 +30,7 @@ def conver_datframe_to_numpy(   df: pd.DataFrame,
     Returns
     -------
     np.ndarray
-        numpy array
+        numpy array TODO sphinx
     """
 
     # using logging
@@ -83,7 +83,7 @@ def detrend_signal( signal: np.ndarray,
     """
     for i in range(signal.shape[1]):
         DataFilter.detrend(signal.T[i], DetrendOperations.CONSTANT.value)
-        # Other detrend operations are available
+        # Other detrend operations are available # TODO implement idea MATI
         # DataFilter.detrend(signal.T[i], DataFilter.DetrendOperations.LINEAR.value)
         # DataFilter.detrend(signal.T[i], DataFilter.DetrendOperations.QUADRATIC.value)
         # DataFilter.detrend(signal.T[i], DataFilter.DetrendOperations.CUBIC.value)
@@ -94,7 +94,7 @@ def detrend_signal( signal: np.ndarray,
                         # + type_detrend
                         )
 
-    if viz:
+    if viz:                 # TODO:  elimine modulo vizualization
         if end is None:
             end = signal.shape[0]
 
@@ -138,7 +138,7 @@ def absolute_value( signal: np.ndarray,
         logging.info(msg="Absolute value of the signal, name of function: absolute_value")
 
     if viz:
-        if end is None:
+        if end is None:      # TODO:  elimine modulo vizualization
             end = signal.shape[0]
 
         # plot the array
@@ -205,7 +205,7 @@ def envelope_aux(data: np.ndarray, sampling_rate: int) -> np.ndarray:
 
     return arrray
 
-def  feature_engineering(   data: np.ndarray, 
+def  feature_engineering(   data: np.ndarray,  # TODO renamed Envelope
                             # label: np.ndarray = None, 
                             interpolation: int, 
                             traking: bool = False,
@@ -276,7 +276,7 @@ def normalize_data(
                 columns_scale: list = None,
                 columns_labels: list = None,    
                 is_dataframe: bool = True, 
-                type_normalization : str = MinMaxScaler
+                type_normalization : callable = MinMaxScaler  # TODO  set a options type str
                 ) -> pd.DataFrame:
                 # TODO traking y debug arguments
 
@@ -324,7 +324,6 @@ def normalize_data(
         cols = cols[-1:] + cols[:-1]
         data = data[cols]
 
-    
     return data
 
 
@@ -335,7 +334,7 @@ def normalize_data(
 
 # See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
   # add to dataframe columns labels
-def preposses_balanced(
+def preposses_balanced( # TODO rename to preposses_balanced
                 data : pd.DataFrame,
                 exists_labels : bool = True,
                 width_windows : int = 50, 

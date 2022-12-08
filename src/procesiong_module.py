@@ -1,6 +1,8 @@
 import numpy as np
 from sklearn.model_selection import train_test_split
 
+# TODO renamedmodule
+
 def split_data(tuple_arr_class_X : tuple, tuple_arr_class_y : tuple, rate_split : float = 0.2, debug: bool = False, replicability : int = 42) -> tuple:
     """_summary_
 
