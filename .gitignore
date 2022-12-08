@@ -2917,3 +2917,8 @@ src/__pycache__/procesiong_module.cpython-39.pyc
 src/__pycache__/utils_module.cpython-39.pyc
 src/__pycache__/visualization_module.cpython-39.pyc
 src/__pycache__/__init__.cpython-39.pyc
+data_zipped/QLA002T2M_1_clean_1.csv
+data_zipped/features.csv
+data_zipped/labels.csv
+data_zipped/QLA002 Tanda 2 caja 2 dia8a_MACHO_analisisComp.txt
+data_zipped/QLA002T2M_1.csv
