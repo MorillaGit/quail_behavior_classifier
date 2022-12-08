@@ -1,0 +1,6 @@
+brainflow==5.3.0
+pandas==1.4.3   
+mlflow==2.0.1
+tensorflow==2.10.0
+seaborn==0.11.2
+sklearn==0.0

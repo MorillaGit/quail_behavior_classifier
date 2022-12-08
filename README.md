@@ -61,7 +61,7 @@ This project is an open source tool for the detection and classification of quai
 
 ## 2. Data
 
-![asd](/V2/assets/images_1.png)
+![asd](/assets/images_1.png)
 
 The data for this project was collected using accelerometers attached to the backs of quail. The accelerometers were placed in small backpacks and worn by the quail while they performed various behaviors. The accelerometer data was then recorded and labeled by researchers who watched videos of the quail and manually annotated each frame with the corresponding behavior.
 
@@ -71,24 +71,24 @@ The data consists of time series data from the accelerometers, as well as the co
 ## 3. Modules
 
 ### 3.1. Visualization Module
-![asd](/V2/assets/desequilibre.png)
-![asd](/V2/assets/signal_segment.png)
+![asd](/assets/desequilibre.png)
+![asd](/assets/signal_segment.png)
 ### 3.2. Preprocessing Module
 
-![asd](/V2/assets/split_windows.png)
+![asd](/assets/split_windows.png)
 
-![asd](/V2/assets/val_abs.png)
+![asd](/assets/val_abs.png)
 
 ### 3.3. Processing Module
-![asd](/V2/assets/envolve.png)
+![asd](/assets/envolve.png)
 ### 3.4. Utils Module
 
 ### 3.5. Deep Learning Module
-![asd](/V2/assets/like_image.png)
+![asd](/assets/like_image.png)
 
 
 ## 4. Results
 
-![asd](/V2/assets/first_results.png)
-![asd](/V2/assets/confusion_matrix.png)
+![asd](/assets/first_results.png)
+![asd](/assets/confusion_matrix.png)
 "# quail_behavior_classifier" 
