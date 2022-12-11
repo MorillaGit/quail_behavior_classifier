@@ -83,13 +83,16 @@ def create_model_parametric(input_shape_dataset : tuple,
                             ) -> tf.keras.Model:
     """_summary_
 
-    Args:
-        input_shape_dataset (tuple): _description_
-        num_classes (int): _description_
-        debug (bool, optional): _description_. Defaults to False.
-
-    Returns:
-        tf.keras.Model: _description_
+    :param input_shape_dataset: _description_
+    :type input_shape_dataset: tuple
+    :param num_classes: _description_
+    :type num_classes: int
+    :param debug: _description_, defaults to False
+    :type debug: bool, optional
+    :param filters_base: _description_, defaults to 32
+    :type filters_base: int, optional
+    :return: _description_
+    :rtype: tf.keras.Model
     """
     model = Sequential()
     model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=input_shape_dataset, padding='same'))

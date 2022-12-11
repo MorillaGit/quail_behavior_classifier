@@ -10,10 +10,8 @@ def load_data(
                 name_csv_labels: str = None,  # TODO None to "", is not for !=
                 delay: int = 150, 
                 labeled_data_step: int = 600000,
-                # traking: bool = False  # traking
                 )-> pd.DataFrame:
-    """ Load data from csv files and convert to pandas DataFrame
-
+    """ Load data from csv files and convert to pandas DataFrame \n
    Loads the data and labels from the specified .csv files and returns them as a tuple. 
    The data is loaded from the file specified by `name_csv_features` and the labels are loaded 
    from the file specified by `name_csv_labels`. The `delay` parameter specifies the difference 

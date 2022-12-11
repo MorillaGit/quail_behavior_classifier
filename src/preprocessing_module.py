@@ -1,5 +1,3 @@
-
-
 import pandas as pd
 import numpy as np
 from brainflow.data_filter import DataFilter, FilterTypes, AggOperations,DetrendOperations
@@ -10,141 +8,70 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import random
 
 
-
-def conver_datframe_to_numpy(   df: pd.DataFrame, # TODO: conver to convert, datframe to dataframe
+def conver_datframe_to_numpy(   data_dataframe: pd.DataFrame, # TODO: conver to convert, datframe to dataframe
                                 columns: list = None,
                                 debug : bool = True, # TODO: unused
-                                traking: bool = False
                                 ) -> np.ndarray:
 
-    """" This function receives a dataframe and columns optionally and returns a numpy array
+    """"  This function convert dataframe columns to numpy array
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-        dataframe to convert
-    columns : list, optional
-        columns to convert, by default None
-    debug : bool, optional
-
-    Returns
-    -------
-    np.ndarray
-        numpy array TODO sphinx
+    :param data_dataframe: the dataframe to convert
+    :type data_dataframe: pd.DataFrame
+    :param columns: columns to convert
+    :type columns: list
+    :param debug: this is a debug flag, to see a dimension of the data
+    :type debug: bool
+    :return: the numpy array
+    :rtype:  np.ndarray
     """
-
-    # using logging
-    if traking:
-        logging.info(msg="Converting dataframe to numpy array, the shape of the dataframe is: "
-        + str(df.shape) +
-        "name of the columns: " 
-        + str(df.columns) +
-        "name of function: conver_datframe_to_numpy")
-
-    # if columns is not None, return the values of the columns
     if columns is not None:
-        return df[columns].to_numpy()
+        if debug:
+            print("The columns are ", data_dataframe[columns].shape)
+        return data_dataframe[columns].to_numpy()
 
+    if debug:
+            print("The columns are ", data_dataframe.shape)
 
+    return data_dataframe.to_numpy()
 
-
-    # if debug:
-    #     print("The columns are ", df.columns)
-    
-    return df.to_numpy()
-
+# TODO: the detrand not is necessary, because the data is already detrended
 def detrend_signal( signal: np.ndarray,
-                    traking: bool = False,
-                    viz: bool = False,
-                    start : int = 0,
-                    end : int = None,
-                    title : str = "detrend_signal"
+                    type_detrend : str = "CONSTANT"
                     ) -> np.ndarray:
 
-    """ Removes the linear component of a signal, allowing to see any non-linear change in the signal.
-
-    Parameters
-    ----------
-    signal : np.ndarray
-        signal to detrend
-    type_detrend : str, optional
-        type of detrend, by default "CONSTANT", other options are "LINEAR", "QUADRATIC", "CUBIC" TODO no implmented yet
-    viz : bool, optional
-        visualize the signal, by default False
-    traking : bool, optional
-        enable tracking, by default False
-    debug : bool, optional
-        enable debug, by default False
-
-    Returns
-    -------
-    np.ndarray
-        detrended signal
+    """ This function detrend the signal, applies the `detrend` function to a set of data. 
+    This function removes the linear trend from the data, leaving only the random 
+    fluctuations. The detrended data is returned. The type of detrend is specified by
+    the `type_detrend` parameter.
+    
+    :param signal: the array to detrend
+    :type signal: np.ndarray
+    :param type_detrend: the type of detrend, by default "CONSTANT"
+    :type type_detrend: str, optional
+    :return: the numpy array with the detrended signal
+    :rtype: np.ndarray
     """
     for i in range(signal.shape[1]):
-        DataFilter.detrend(signal.T[i], DetrendOperations.CONSTANT.value)
-        # Other detrend operations are available # TODO implement idea MATI
-        # DataFilter.detrend(signal.T[i], DataFilter.DetrendOperations.LINEAR.value)
-        # DataFilter.detrend(signal.T[i], DataFilter.DetrendOperations.QUADRATIC.value)
-        # DataFilter.detrend(signal.T[i], DataFilter.DetrendOperations.CUBIC.value)
-
-    if traking:
-        logging.info(msg="Detrend signal, name of function: detrend_signal" 
-                        + "type of detrend: " 
-                        # + type_detrend
-                        )
-
-    if viz:                 # TODO:  elimine modulo vizualization
-        if end is None:
-            end = signal.shape[0]
-
-        # plot the array
-        plt.plot(signal[start:end])
-        plt.title(title)
-        plt.show()
-
+        if type_detrend == "LINEAR":
+            DataFilter.detrend(signal.T[i], DetrendOperations.LINEAR.value)
+        elif type_detrend == "CONSTANT":
+            DataFilter.detrend(signal.T[i], DetrendOperations.CONSTANT.value)
+        else:
+            DataFilter.detrend(signal.T[i], DetrendOperations.CONSTANT.value)
     return signal
 
 
-def absolute_value( signal: np.ndarray,
-                    traking: bool = False,
-                    viz: bool = False,
-                    start : int = 0,
-                    end : int = None,
-                    title : str = "absolute_value"
+def absolute_value( signal: np.ndarray
                     ) -> np.ndarray:
 
-    """ This function receives a numpy array and returns the absolute value of the array
-
-    Parameters
-    ----------
-    signal : np.ndarray
-        signal to get the absolute value
-    traking : bool, optional
-        enable tracking, by default False
-    viz : bool, optional
-        visualize the signal, by default False
-    debug : bool, optional
-        enable debug, by default False
-
-    Returns
-    -------
-    np.ndarray
-        absolute value of the array
+    """This function receives a numpy array and returns the absolute value of the array
+    
+    :param signal: the array to apply absolute value
+    :type signal: np.ndarray
+    :return: the numpy array with the absolute value
+    :rtype: np.ndarray
     """
     signal = np.absolute(signal)
-
-    if traking:
-        logging.info(msg="Absolute value of the signal, name of function: absolute_value")
-
-    if viz:
-        if end is None:      # TODO:  elimine modulo vizualization
-            end = signal.shape[0]
-
-        # plot the array
-        plt.plot(signal[start:end])
-        plt.title(title)
-        plt.show()
 
     return signal
 
@@ -206,26 +133,15 @@ def envelope_aux(data: np.ndarray, sampling_rate: int) -> np.ndarray:
     return arrray
 
 def  feature_engineering(   data: np.ndarray,  # TODO renamed Envelope
-                            # label: np.ndarray = None, 
-                            interpolation: int, 
-                            traking: bool = False,
-                            debug: bool = False
+                            interpolation: int
                             ) -> np.ndarray:
-    """ This function receives a np.array and returns a np.array, applied feature engineering
+    """ This function receives a np.array and returns a np.array, applied envelope to the data
     
-    Parameters
-    ----------
-    data : np.ndarray
-        data to apply feature engineering
-    label : np.ndarray
-        label to apply feature engineering
-    interpolation : int
-        interpolation
-
-    Returns
-    -------
-    np.ndarray
-        data with feature engineering
+    
+    :param signal: the array to apply absolute value
+    :type signal: np.ndarray
+    :return: the numpy array with the absolute value
+    :rtype: np.ndarray
     """
     x = np.arange(len(data))
     inter = []
@@ -254,18 +170,6 @@ def  feature_engineering(   data: np.ndarray,  # TODO renamed Envelope
         inter = scipy.interpolate.interp1d(u_x, u_y,kind='cubic')  # TODO convert kind to parameter
         
         data_enineering.append(inter(x))
-
-        if traking:
-            logging.info(msg="Feature engineering, name of function: feature_engineering"
-                            + "interpolation: " + str(interpolation))
-
-            
-
-    # convert to np.array
-    data_enineering = np.array(data_enineering)
-
-    if debug:
-        print("The shape of the data is: ", data_enineering.shape)
 
     return data_enineering
 
