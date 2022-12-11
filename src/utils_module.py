@@ -10,48 +10,44 @@ def load_data(
                 name_csv_labels: str = None,  # TODO None to "", is not for !=
                 delay: int = 150, 
                 labeled_data_step: int = 600000,
-                traking: bool = False 
+                # traking: bool = False  # traking
                 )-> pd.DataFrame:
-    """_summary_
+    """ Load data from csv files and convert to pandas DataFrame
 
-    :param path_data: path where is the data csv, defaults to "data/"
-    :type path_data: str, optional
-    :param name_csv_features: name of csv features, defaults to "features.csv"
-    :type name_csv_features: str, optional
-    :param name_csv_labels: path where is the data csv, defaults to None
-    :type name_csv_labels: str, optional
-    :param delay: _description_, defaults to 150
-    :type delay: int, optional
-    :param labeled_data_step: _description_, defaults to 600000
-    :type labeled_data_step: int, optional
-    :param traking: _description_, defaults to False
-    :type traking: bool, optional
-    :return: _description_
-    :rtype: pd.DataFrame
+   Loads the data and labels from the specified .csv files and returns them as a tuple. 
+   The data is loaded from the file specified by `name_csv_features` and the labels are loaded 
+   from the file specified by `name_csv_labels`. The `delay` parameter specifies the difference 
+   between the data and the labels, and the `labeled_data_step` parameter specifies the last 
+   labeled data point in the dataset. 
+
+    :param path_data: the path where the .csv files are stored
+    :type path_data: str
+    :param name_csv_features: the name of the .csv file that contains the data
+    :type name_csv_features: str
+    :param name_csv_labels: the name of the .csv file that contains the labels
+    :type name_csv_labels: str
+    :param delay: the difference between the data and the labels
+    :type delay: int
+    :param labeled_data_step: the last labeled data point in the dataset
+    :type labeled_data_step: int
+    :return: a tuple with the loaded data and labels
+    :rtype:  pd.DataFrame
     """
 
     inputs = pd.read_csv(path_data + name_csv_features, low_memory=False)
 
-    # if name_csv_labels difers from None, load the labels else dont use labels
+    # if name_csv_labels is different to None, load the labels else dont use labels
     if name_csv_labels is not None:
         labels = pd.read_csv(path_data + name_csv_labels, low_memory=False)
 
     # crop data for synchronization
     inputs = pd.DataFrame(inputs[delay:])
 
-
-    # report delay in logging
-    if traking:
-        logging.info(f"Delay between features and labels: {delay} seconds")
-
-    # reset index
     inputs.reset_index(drop=True, inplace=True)
 
-    # df is composed by inputs and labels
     if name_csv_labels is not None:
         df = pd.concat([inputs, labels], axis=1)
-        # the label is not float. it's a category
-        # convert to int
+        # the label is not float. it's a category convert to int
         df['label'] = df['label'].astype('int')
     else:
         df = inputs
@@ -60,47 +56,31 @@ def load_data(
         # use the first labeled_data_step samples because just [0:600000] are labeled
         df = df[:labeled_data_step]
 
-    # report process in logging TODO if tracking , correct traking to tracking
-    logging.info(f"Data loaded from {path_data + name_csv_features}")
-
     return df
 
 def arr_to_dataframe(   data_to_add: np.ndarray,
                         data_base: pd.DataFrame,
                         names_new_columns: list,
-                        debug : bool = False, 
-                        traking: bool = False
+                        debug : bool = False,
                         ) -> pd.DataFrame:
-    """This function receives a numpy array and columns optionally and returns a dataframe
+    """ This 
 
-    Parameters
-    ----------
-    data_to_add : np.ndarray
-        numpy array to convert
-    names_new_columns : list, optional
-        columns to convert, by default None
-    debug : bool, optional
-        debug mode, by default True
-    traking : bool, optional
-        traking mode, by default False
-
-    Returns
-    -------
-    pd.DataFrame
-        dataframe
+    :param data_to_add: _description_
+    :type data_to_add: np.ndarray
+    :param data_base: _description_
+    :type data_base: pd.DataFrame
+    :param names_new_columns: _description_
+    :type names_new_columns: list
+    :param debug: _description_, defaults to False
+    :type debug: bool, optional
+    :param traking: _description_, defaults to False
+    :type traking: bool, optional
+    :return: _description_
+    :rtype: pd.DataFrame
     """
 
-    # using logging # TODO find the better way to do this
-    if traking:
-        logging.info(msg="Converting numpy array to dataframe, the shape of the numpy array is: "
-        + str(data_to_add.shape) +
-        "name of the columns: " 
-        + str(list_columns_add) +
-        "name of function: arr_to_dataframe")
-
-    # convert to dataframe
     data_to_add = pd.DataFrame(data_to_add.T, columns=names_new_columns)
-    # add to dataframe
+
     data_eng = pd.concat([data_base, data_to_add], axis=1)
 
     cols = list(data_eng.columns)
@@ -111,8 +91,6 @@ def arr_to_dataframe(   data_to_add: np.ndarray,
         cols = cols[-1:] + cols[:-1]
         cols = cols[-1:] + cols[:-1]
         cols = cols[-1:] + cols[:-1]
-        # cols = cols[-1:] + cols[:-1]
-
 
     data_eng = data_eng[cols]
 
@@ -125,14 +103,14 @@ def create_labels(
                 dim_0: int, 
                 debug: bool = False
                 ) -> tuple:
-    """generate a vectior of length dim_0 
+    """_summary_
 
-    Args:
-        dim_0 (int): _description_
-        debug (bool, optional): _description_. Defaults to False.
-
-    Returns:
-        tuple: _description_
+    :param dim_0: _description_
+    :type dim_0: int
+    :param debug: _description_, defaults to False
+    :type debug: bool, optional
+    :return: _description_
+    :rtype: tuple
     """
     # create labels
     y_train_0 = np.zeros(dim_0)
