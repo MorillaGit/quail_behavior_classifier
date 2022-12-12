@@ -247,7 +247,7 @@ def split_windows(
                 exists_labels : bool = True,
                 width_windows : int = 50, 
                 stride_windows : int = 50, 
-                debug : bool = False
+                debug : bool = False # TODO fix error print
                 ) -> tuple:
     """ This function receives a pd.DataFrame and returns a numpy array with this dimensions (n_windows, width_windows, n_channels) and the minimum number of windows for each label.
     
@@ -299,7 +299,7 @@ def split_windows(
             if i == 2:
                 count_2 += 1  
         if debug:
-            print("-----------------1----------------------")
+            print("--------------------Numbers of windows per class---------------------")
             print("Number of windows with normal behavior : ",      count_0,
                 "\nNumber of windows with reproductive event :  ",  count_1,
                 "\nNumber of windows with event of interest :  ",   count_2)
@@ -320,21 +320,19 @@ def split_windows(
             if df_label_windows[i] == 2:
                 df_list_2.append(df_list[i])
 
-        if debug:
-            print("-----------------2----------------------")
-            print(  "Number of windows with normal behavior : ",  len(df_list_0),
-                    "\nNumber of windows with reproductive event :  ", len(df_list_1),
-                    "\nNumber of windows with event of interest :  ", len(df_list_2))
+        # if debug:
+        #     print("----------Numbers of windows per class-----------")
+        #     print(  "Number of windows with normal behavior : ",  len(df_list_0),
+        #             "\nNumber of windows with reproductive event :  ", len(df_list_1),
+        #             "\nNumber of windows with event of interest :  ", len(df_list_2))
                 
-        # df_class_
-
         df_class_0 = random.sample(df_list_0, min_count)
         df_class_1 = random.sample(df_list_1, min_count)
         df_class_2 = random.sample(df_list_2, min_count)
 
 
         if debug:
-            print("-----------------3----------------------")
+            print("----Numbers of windows per class before balanced data-----")
             print(  "Number of windows with normal behavior : ",  len(df_class_0),
                     "\nNumber of windows with reproductive event :  ", len(df_class_1),
                     "\nNumber of windows with event of interest :  ", len(df_class_2))
@@ -356,7 +354,7 @@ def split_windows(
 
     if debug:
         if exists_labels:
-            print("-----------------4----------------------")
+            print("-----------before balanced----------------")
             print(  "\n","Number of windows with normal behavior : ",   len(arr_0),
                     "\nNumber of windows with reproductive event :  ",  len(arr_1),
                     "\nNumber of windows with event of interest :  ",   len(arr_2))
