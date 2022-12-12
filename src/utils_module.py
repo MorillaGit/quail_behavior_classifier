@@ -61,9 +61,9 @@ def arr_to_dataframe(   data_to_add: np.ndarray,
                         names_new_columns: list,
                         debug : bool = False,
                         ) -> pd.DataFrame:
-    """ This 
+    """This function convert a numpy array to a pandas DataFrame and add to the data_base
 
-    :param data_to_add: _description_
+    :param data_to_add: _description_ TODO complete
     :type data_to_add: np.ndarray
     :param data_base: _description_
     :type data_base: pd.DataFrame
@@ -71,8 +71,6 @@ def arr_to_dataframe(   data_to_add: np.ndarray,
     :type names_new_columns: list
     :param debug: _description_, defaults to False
     :type debug: bool, optional
-    :param traking: _description_, defaults to False
-    :type traking: bool, optional
     :return: _description_
     :rtype: pd.DataFrame
     """
@@ -101,13 +99,13 @@ def create_labels(
                 dim_0: int, 
                 debug: bool = False
                 ) -> tuple:
-    """_summary_
+    """This function create labels for the data, is necessary introduce the dimension of the data
 
-    :param dim_0: _description_
+    :param dim_0: the dimension of the data minimum represent the number of samples
     :type dim_0: int
-    :param debug: _description_, defaults to False
+    :param debug: this parameter is used for debug the function, printing the shape of data generated, defaults to False
     :type debug: bool, optional
-    :return: _description_
+    :return: a tuple with the labels
     :rtype: tuple
     """
     # create labels
@@ -120,39 +118,14 @@ def create_labels(
     y_test_2 = np.full(dim_0, 2)
     
     if debug:
-        print("-----------------5----------------------") # TODO refactor
+        print("--------------the shape if Train per class------------------") # TODO refactor
         print(  "\n","y_train_0 shape : ", y_train_0.shape,
                 "\n","y_train_1 shape : ", y_train_1.shape,
                 "\n","y_train_2 shape : ", y_train_2.shape)
 
-        print("-----------------5----------------------")
+        print("--------------the shape if test per class------------------")
         print(  "\n","y_test_0 shape : ", y_test_0.shape,
                 "\n","y_test_1 shape : ", y_test_1.shape,
                 "\n","y_test_2 shape : ", y_test_2.shape)
                 
     return y_train_0, y_train_1, y_train_2
-
-
-# import argparse
-
-# def make_parser() -> argparse.ArgumentParser:
-#     """Make parser"""
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument(
-#         "--input_file_xyz",
-#         type=str,
-#         required=True,
-#         help="Input file name, e.g. 'data_accelerometer.csv' or path_data/data.csv",
-#     )
-#     parser.add_argument(
-#         "--input_file_labels",
-#         type=str,
-#         required=True,
-#         help="Input file name, e.g. 'data_labels.csv' or path_data/data.csv"
-#     )
-
-#     return parser
-
-
-# parser.add_argument("--input_file", type=str, help="Input file name")
-# parser.add_argument("--output_file", type=str, help="Output file name")
