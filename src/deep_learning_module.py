@@ -1,7 +1,7 @@
 
 import numpy as np
 import pandas as pd
-import mlflow.tensorflow
+import mlflow.tensorflow # TODO check if this is necessary
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
 import mlflow
@@ -9,15 +9,12 @@ import mlflow
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
 
-from tensorflow.keras.optimizers import Adam
 from src import deep_learning_module
 import importlib
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
-import numpy as np
 from sklearn.metrics import roc_auc_score
-import mlflow
 import datetime
 
 
@@ -27,15 +24,21 @@ def reshape_data_cnn(
                 arr : np.ndarray = None, 
                 debug: bool = False
                 ) -> tuple:
-    """_summary_
+    """ This function takes in a tensor of data in a specific shape and modifies it
+    to be compatible with a convolutional neural network. This may include adding
+    an additional dimension to the tensor, changing the order of the dimensions,
+    or flattening the tensor. Convert the data in format  (samples, rows, cols) to the format (samples, rows, cols, dimension_added)
 
-    Args:
-        train (np.ndarray): _description_
-        test (np.ndarray): _description_
-        debug (bool, optional): _description_. Defaults to False.
-
-    Returns:
-        tuple: _description_
+    :param train: np.array to convert, defaults to None   
+    :type train: np.ndarray, optional
+    :param test: np.array to convert, defaults to None
+    :type test: np.ndarray, optional
+    :param arr: np.array to convert, defaults to None
+    :type arr: np.ndarray, optional
+    :param debug: is a flag to know if the function is in debug mode, defaults to False
+    :type debug: bool, optional
+    :return: return a array with the data converted in format (samples, rows, cols, dimension_added)
+    :rtype: tuple
     """
     # reshape data
     if train is not None:
@@ -61,7 +64,24 @@ def reshape_data_cnn(
 
     return train, test
 
-def create_model_cnn_basic(input_shape_dataset, num_classes, debug=False):
+def create_model_cnn_basic( input_shape_dataset : tuple, 
+                            num_classes : int, 
+                            debug : bool = False
+                            ) -> tf.keras.Model:
+
+    """ This function creates a basic convolutional neural network model with 2 convolutional layers, 2 dense layers and a softmax layer
+
+    :param input_shape_dataset: shape of the input data
+    :type input_shape_dataset: tuple
+    :param num_classes: number of classes
+    :type num_classes: int
+    :param debug: is a flag to know if the function is in debug mode, defaults to False
+    :type debug: bool, optional
+    :return: return a model
+    :rtype: tf.keras.Model
+    """
+
+    input_shape_dataset: tuple
     model = Sequential()
     model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=input_shape_dataset, padding='same'))
     model.add(MaxPooling2D(pool_size=(2, 1),padding='same'))
@@ -76,7 +96,7 @@ def create_model_cnn_basic(input_shape_dataset, num_classes, debug=False):
         model.summary()
     return model
 
-def create_model_parametric(input_shape_dataset : tuple,
+def create_model_parametric(input_shape_dataset : tuple, # TODO dont work
                             num_classes : int,
                             debug : bool = False,
                             filters_base : int = 32,                            
@@ -108,6 +128,7 @@ def create_model_parametric(input_shape_dataset : tuple,
         model.summary()
     return model
 # TODO not working
+
 def build_cnn_complex(
             input_shape : tuple,
             num_classes : int,
@@ -140,16 +161,46 @@ def build_cnn_complex(
 
     """Creates a convolutional neural network model with the specified architecture.
     
-    Args:
-        num_layers: Number of layers in the neural network.
-        num_units: Number of units per layer in the neural network.
-        activation: Activation function used by the layers in the neural network.
-        kernel_size: Kernel size used by the layers in the neural network.
-        dropout_rate: Percentage of units to drop out in the layers of the neural network.
-        ...: Other arguments for defining the architecture of the neural network.
-        
-    Returns:
-        A convolutional neural network model with the specified architecture.
+    :param input_shape: shape of the input data
+    :type input_shape: tuple
+    :param num_classes: number of classes
+    :type num_classes: int
+    :param debug: is a flag to know if the function is in debug mode, defaults to False
+    :type debug: bool, optional
+    :param num_layers_conv: number of convolutional layers, defaults to 2
+    :type num_layers_conv: int, optional
+    :param num_layers_dense: number of dense layers, defaults to 2
+    :type num_layers_dense: int, optional
+    :param num_filters_1: number of filters for the first convolutional layer, defaults to 32
+    :type num_filters_1: int, optional
+    :param num_filters_2: number of filters for the second convolutional layer, defaults to 64
+    :type num_filters_2: int, optional
+    :param num_filters_3: number of filters for the third convolutional layer, defaults to 128
+    :type num_filters_3: int, optional
+    :param kernel_size_1: kernel size for the first convolutional layer, defaults to (3,3)
+    :type kernel_size_1: int, optional
+    :param kernel_size_2: kernel size for the second convolutional layer, defaults to (4,4)
+    :type kernel_size_2: int, optional
+    :param kernel_size_3: kernel size for the third convolutional layer, defaults to (5,5)
+    :type kernel_size_3: int, optional
+    :param pool_size_0: pool size for the first pooling layer, defaults to (2,2)
+    :type pool_size_0: int, optional
+    :param pool_size_1: pool size for the second pooling layer, defaults to (2,2)
+    :type pool_size_1: int, optional
+    :param pool_size_2: pool size for the third pooling layer, defaults to (4,4)
+    :type pool_size_2: int, optional
+    :param num_units_1: number of units for the first dense layer, defaults to 128
+    :type num_units_1: int, optional
+    :param num_units_2: number of units for the second dense layer, defaults to 64
+    :type num_units_2: int, optional
+    :param num_units_3: number of units for the third dense layer, defaults to 32
+    :type num_units_3: int, optional
+    :param dropout_rate: dropout rate, defaults to 0.25
+    :type dropout_rate: float, optional
+    :param activation: activation function, defaults to "relu"
+    :type activation: str, optional
+    :return: the model
+    :rtype: Sequential
     """
     tf.compat.v1.logging.set_log_device_placement(False)
 
@@ -234,6 +285,9 @@ def run_experiment_cnn(
 
 
     with mlflow.start_run() as run:
+    
+        # set name experiment
+        mlflow.set_experiment("CNN_T")
 
         model = deep_learning_module.create_model_cnn_basic(input_shape, num_classes, debug=False)
 
@@ -307,11 +361,7 @@ def run_experiment_cnn(
         # log confusion matrix
         cm = confusion_matrix(y_test, y_pred)
         fig, ax = plt.subplots(figsize=(10,10))
-        sns.heatmap(cm, annot=True, fmt="d");
-        plt.figure(figsize=(10,10))
-        plt.title("Confusion matrix")
-        plt.ylabel('Actual')
-        plt.xlabel('Predicted')
+        sns.heatmap(cm, annot=True, fmt="d", linewidths=.5, square = True, cmap = 'Blues_r'); 
         plt.savefig('confusion_matrix.png', dpi=300)
         mlflow.log_artifact('confusion_matrix.png')
 
