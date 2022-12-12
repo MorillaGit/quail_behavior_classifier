@@ -4,7 +4,7 @@ from brainflow.data_filter import DataFilter, FilterTypes, AggOperations,Detrend
 import logging
 import matplotlib.pyplot as plt
 import scipy.interpolate
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler, MaxAbsScaler, Normalizer, QuantileTransformer, PowerTransformer
 import random
 
 
@@ -77,22 +77,18 @@ def absolute_value( signal: np.ndarray
 
 # this function is made in FACU TODO Refactor
 # this function calculate envelope of the data, receives a np.array,and integer and returns a np.array
-def envelope_aux(data: np.ndarray, sampling_rate: int) -> np.ndarray:
+def envelope_aux(data: np.ndarray, distance: int) -> np.ndarray:
 
-    """ This function calculate envelope of the data
+    """ This function is a auxiliary, receives a np.array and returns a np.array, applied envelope to the data for graph
     
-    Parameters
-    ----------
-    data : np.ndarray
-        data to calculate envelope
-    sampling_rate : int
-        sampling rate
-
-    Returns
-    -------
-    np.ndarray
-        data with envelope
-    # """
+    
+    :param data: the array to apply interpolation with envelope
+    :type data: np.ndarray
+    :param sampling_rate: is the sampling rate of the data, or distance between peaks
+    :type sampling_rate: np.ndarray
+    :return: the numpy array with the envelope
+    :rtype: np.ndarray
+    """
 
     datito = data
     interpolation = sampling_rate
@@ -110,7 +106,7 @@ def envelope_aux(data: np.ndarray, sampling_rate: int) -> np.ndarray:
         u_y = sig.copy()
 
         # find upper peaks
-        u_peaks, _ = scipy.signal.find_peaks(u_y, distance=interpolation)
+        u_peaks, _ = scipy.signal.find_peaks(u_y, distance=distance)
 
         # use peaks and peak values to make envelope
         u_x = u_peaks
@@ -124,7 +120,6 @@ def envelope_aux(data: np.ndarray, sampling_rate: int) -> np.ndarray:
         # create envelope functions
         inter = scipy.interpolate.interp1d(u_x, u_y,kind='cubic')
         
-        # print(channel)
         arrray.append(np.array(inter(x)))
 
         # convert to numpy array
@@ -132,15 +127,17 @@ def envelope_aux(data: np.ndarray, sampling_rate: int) -> np.ndarray:
 
     return arrray
 
-def  feature_engineering(   data: np.ndarray,  # TODO renamed Envelope
-                            interpolation: int
+def  envelope(              data: np.ndarray,  
+                            distance: int
                             ) -> np.ndarray:
-    """ This function receives a np.array and returns a np.array, applied envelope to the data
+    """ This function receives a np.array and returns a np.array, applied envelope with criteria max peak to the data.
     
     
-    :param signal: the array to apply absolute value
-    :type signal: np.ndarray
-    :return: the numpy array with the absolute value
+    :param data: the array to apply interpolation with envelope
+    :type data: np.ndarray
+    :param sampling_rate: is the sampling rate of the data, or distance between peaks
+    :type sampling_rate: np.ndarray
+    :return: the numpy array with the envelope
     :rtype: np.ndarray
     """
     x = np.arange(len(data))
@@ -155,7 +152,7 @@ def  feature_engineering(   data: np.ndarray,  # TODO renamed Envelope
         u_y = sig.copy()
 
         # find upper peaks
-        u_peaks, _ = scipy.signal.find_peaks(u_y, distance=interpolation)
+        u_peaks, _ = scipy.signal.find_peaks(u_y, distance=sampling_rate)
 
         # use peaks and peak values to interpolate
         u_x = u_peaks
@@ -171,38 +168,37 @@ def  feature_engineering(   data: np.ndarray,  # TODO renamed Envelope
         
         data_enineering.append(inter(x))
 
-    return data_enineering
+        # data_enineering = np.array(data_enineering)
+
+    return np.array(data_enineering)
 
 
 def normalize_data(
                 data_df: pd.DataFrame, 
                 data_np: np.ndarray = None,     
                 columns_scale: list = None,
-                columns_labels: list = None,    
+                columns_no_scale: list = None,    
                 is_dataframe: bool = True, 
-                type_normalization : callable = MinMaxScaler  # TODO  set a options type str
+                type_normalization : str = "MinMaxScaler"
                 ) -> pd.DataFrame:
-                # TODO traking y debug arguments
 
-    """ This function receives a dataframe or a np.array and returns a dataframe or a np.array, applied normalization
+    """ This function receives a pd.DataFrame or np.array and returns a pd.DataFrame normalized. Is possible to select the columns to normalize.
     
-    Parameters
-    ----------
-    data_df : pd.DataFrame
-        dataframe to normalize
-    data_np : np.ndarray, optional
-        np.array to normalize, by default None
-    labels : list
-        list of labels
-    is_dataframe : bool, optional
-        boolean to know if the data is a dataframe or a np.array, by default True
-    type_norm : str, optional
-        type of normalization, by default MinMaxScaler
 
-    Returns
-    -------
-    pd.DataFrame
-        dataframe with normalization
+    :param data_df: the dataframe to apply normalization
+    :type data_df: pd.DataFrame
+    :param data_np: the array to apply normalization
+    :type data_np: np.ndarray optional
+    :param columns_scale: the columns to apply normalization
+    :type columns_scale: list optional
+    :param columns_no_scale: the columns to not apply normalization
+    :type columns_no_scale: list optional
+    :param is_dataframe: is a flag to know if the data is a dataframe or a numpy array
+    :type is_dataframe: bool optional
+    :param type_normalization: the type of normalization to apply, for more information see https://scikit-learn.org/stable/modules/classes.html#module-sklearn.preprocessing 
+    :type type_normalization: str optional, default "MinMaxScaler"
+    :return: pd.DataFrame with the data normalized
+    :rtype: pd.DataFrame
     """
     if is_dataframe:
         # get data
@@ -211,22 +207,30 @@ def normalize_data(
             columns_scale = data_df.columns
         data = data_df[columns_scale].values
         # normalize data
-    scaler = type_normalization()
+
+    if type_normalization == "MinMaxScaler":
+        scaler = MinMaxScaler()
+    elif type_normalization == "StandardScaler":
+        scaler = StandardScaler()
+    elif type_normalization == "RobustScaler":
+        scaler = RobustScaler()
+    elif type_normalization == "Normalizer":
+        scaler = Normalizer()
+    elif type_normalization == "MaxAbsScaler":
+        scaler = MaxAbsScaler()
+    elif type_normalization == "QuantileTransformer":
+        scaler = QuantileTransformer()
+    elif type_normalization == "PowerTransformer":
+        scaler = PowerTransformer()
+    else:
+        scaler = MinMaxScaler()
     data = scaler.fit_transform(data)
     # convert to dataframe
     data = pd.DataFrame(data, columns=columns_scale)
     # add to dataframe columns labels
-    if columns_labels is not None:
-        data = pd.concat([data_df[columns_labels], data], axis=1)
-        # move column labels to the end TODO refactor this shit
-        cols = list(data.columns)
-        cols = cols[-1:] + cols[:-1]
-        cols = cols[-1:] + cols[:-1]
-        cols = cols[-1:] + cols[:-1]
-        cols = cols[-1:] + cols[:-1]
-        cols = cols[-1:] + cols[:-1]
-        cols = cols[-1:] + cols[:-1]
-        data = data[cols]
+    if columns_no_scale is not None:
+        data = pd.concat([data_df[columns_no_scale], data], axis=1)
+        data = data[[c for c in data if c not in ['label']] + ['label']]
 
     return data
 
@@ -238,32 +242,30 @@ def normalize_data(
 
 # See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
   # add to dataframe columns labels
-def preposses_balanced( # TODO rename to preposses_balanced
+def split_windows(
                 data : pd.DataFrame,
                 exists_labels : bool = True,
                 width_windows : int = 50, 
                 stride_windows : int = 50, 
                 debug : bool = False
                 ) -> tuple:
-    """ This function receives a dataframe and returns a dataframe, applied windows
+    """ This function receives a pd.DataFrame and returns a numpy array with this dimensions (n_windows, width_windows, n_channels) and the minimum number of windows for each label.
     
-    Parameters
-    ----------
-    data : pd.DataFrame
-        dataframe to apply windows
-    exists_labels : bool, optional
-        boolean to know if the dataframe has labels, by default True
-    width_windows : int
-        width of windows
-    stride_windows : int, optional
-        stride of windows, by default None
 
-    Returns
-    -------
-    pd.DataFrame
-        dataframe with windows
+    :param data: the dataframe to apply split
+    :type data: pd.DataFrame
+    :param exists_labels: is a flag to know if the data has a column label
+    :type exists_labels: bool optional, default True
+    :param width_windows: the width of windows
+    :type width_windows: int optional, default 50
+    :param stride_windows: the stride of windows
+    :type stride_windows: int optional, default 50
+    :param debug: is a flag to know if the function is in debug mode
+    :type debug: bool optional, default False
+    :return: tuple with a list of pd.DataFrame and the minimum number of classes unbalanced
+    :rtype: tuple
     """
-    # this part take a dataframe and return a list of dataframes
+
     df_list = []
     # convert dataframe in list
     if stride_windows is None:
@@ -272,23 +274,16 @@ def preposses_balanced( # TODO rename to preposses_balanced
         df_list.append(data.iloc[i:i+width_windows])
 
     if exists_labels:
-    # this part take a list of dataframes and transform a label column to columns of max in this windows
         df_label_windows = []
         for i in range(len(df_list)):
-            # take a max value of segment
+            # take a max value of segment TODO parametrize this criterion
             label = df_list[i]['label'].max()
-            # create a new dataframe with label
             df_label_windows.append(label)
 
-    # drop a column label of data
         data = data.drop(columns=['label'])
-        # this part add a column with label to dataframe
         for window, label in zip(df_list, df_label_windows):
-            # window['label'] = label
-            window.loc[:, 'label'] = label #--------------------------------
-
+            window.loc[:, 'label'] = label #-------TODO solve this Warning
     
-        # conver listof windows to dataframe
         for window in range(len(df_list)):
             df_list[window] = pd.DataFrame(df_list[window])
 
@@ -305,9 +300,9 @@ def preposses_balanced( # TODO rename to preposses_balanced
                 count_2 += 1  
         if debug:
             print("-----------------1----------------------")
-            print("Number of windows with normal behaviour : ", count_0,
-                "\nNumber of windows with reproductive event :  ", count_1,
-                "\nNnumber of windows with event of interest :  ", count_2)
+            print("Number of windows with normal behavior : ",      count_0,
+                "\nNumber of windows with reproductive event :  ",  count_1,
+                "\nNumber of windows with event of interest :  ",   count_2)
 
         # find a min number of windows with different labels
         min_count = min(count_0, count_1, count_2)
@@ -327,9 +322,9 @@ def preposses_balanced( # TODO rename to preposses_balanced
 
         if debug:
             print("-----------------2----------------------")
-            print(  "Number of windows with normal behaviour : ",  len(df_list_0),
+            print(  "Number of windows with normal behavior : ",  len(df_list_0),
                     "\nNumber of windows with reproductive event :  ", len(df_list_1),
-                    "\nNnumber of windows with event of interest :  ", len(df_list_2))
+                    "\nNumber of windows with event of interest :  ", len(df_list_2))
                 
         # df_class_
 
@@ -340,9 +335,9 @@ def preposses_balanced( # TODO rename to preposses_balanced
 
         if debug:
             print("-----------------3----------------------")
-            print(  "Number of windows with normal behaviour : ",  len(df_class_0),
+            print(  "Number of windows with normal behavior : ",  len(df_class_0),
                     "\nNumber of windows with reproductive event :  ", len(df_class_1),
-                    "\nNnumber of windows with event of interest :  ", len(df_class_2))
+                    "\nNumber of windows with event of interest :  ", len(df_class_2))
 
     # transform list of dataframes to numpy array whit shape = (len(df_class), 50, features)
     def list_to_array(lista: list) -> np.ndarray:
@@ -362,26 +357,25 @@ def preposses_balanced( # TODO rename to preposses_balanced
     if debug:
         if exists_labels:
             print("-----------------4----------------------")
-            print(  "\n","Number of windows with normal behavior : ",       len(arr_0),
-                    "\nNumber of windows with reproductive event :  ",      len(arr_1),
-                    "\nNnumber of windows with event of interest :  ",      len(arr_2))
+            print(  "\n","Number of windows with normal behavior : ",   len(arr_0),
+                    "\nNumber of windows with reproductive event :  ",  len(arr_1),
+                    "\nNumber of windows with event of interest :  ",   len(arr_2))
 
-            print(      "\n","Number of windows with normal behavior : ", len(arr_0),        
-                        "\n","The shape of each window is : ", arr_0[0].shape,
-                        "\n","The shape of the array is : ", arr_0.shape,
-                        "\n", "The type of each window is : ", type(arr_0[0]))
+            print(      "\n","Number of windows with normal behavior : ",   len(arr_0),        
+                        "\n","The shape of each window is : ",              arr_0[0].shape,
+                        "\n","The shape of the array is : ",                arr_0.shape,
+                        "\n", "The type of each window is : ",              type(arr_0[0]))
 
-            print(      "\n","Number of windows with reproductive event : ", len(arr_1),        
-                        "\n","The shape of each window is : ", arr_1[0].shape,
-                        "\n","The shape of the array is : ", arr_1.shape,
-                        "\n", "The type of each window is : ", type(arr_1[0]))
+            print(      "\n","Number of windows with reproductive event : ",    len(arr_1),        
+                        "\n","The shape of each window is : ",                  arr_1[0].shape,
+                        "\n","The shape of the array is : ",                    arr_1.shape,
+                        "\n", "The type of each window is : ",                  type(arr_1[0]))
 
             print(      "\n","Number of windows with event of interest : ", len(arr_2),        
                         "\n","The shape of each window is : ", arr_2[0].shape,
                         "\n","The shape of the array is : ", arr_2.shape,
                         "\n", "The type of each window is : ", type(arr_2[0]))
     if exists_labels:
-# Eliminate the last column of each window
         arr_0 = arr_0[:, :, :-1]
         arr_1 = arr_1[:, :, :-1]
         arr_2 = arr_2[:, :, :-1]
@@ -389,7 +383,7 @@ def preposses_balanced( # TODO rename to preposses_balanced
             print("-----------------5--------whiteout label--------")
             print(  "\n","Number of windows with normal behavior : ",       len(arr_0),
                     "\nNumber of windows with reproductive event :  ",      len(arr_1),
-                    "\nNnumber of windows with event of interest :  ",      len(arr_2))
+                    "\nNumber of windows with event of interest :  ",      len(arr_2))
 
             print(      "\n","Number of windows with normal behavior : ", len(arr_0),        
                         "\n","The shape of each window is : ", arr_0[0].shape,
@@ -418,13 +412,3 @@ def preposses_balanced( # TODO rename to preposses_balanced
 
 
         return arr_no_labeled
-
-# TODO Diocito dice 
-# # Charlas con el diocito 
-# Para detectar anomalías en un dataset esparso, se pueden utilizar diferentes algoritmos de machine learning o deep learning, dependiendo de la naturaleza y las características del dataset en cuestión. Algunos ejemplos de algoritmos que se pueden utilizar en este caso son:
-
-# Algoritmos de detección de anomalías basados en la densidad: estos algoritmos, como el clasificador de densidad de KNN (k-nearest neighbors), se basan en la idea de que las anomalías suelen ser valores atípicos dentro de un conjunto de datos, por lo que se pueden detectar como aquellos que tienen una densidad de vecinos cercanos muy baja en comparación con el resto de los datos.
-
-# Algoritmos de detección de anomalías basados en el aprendizaje profundo: estos algoritmos, como las redes neuronales autoencoders o las redes generativas adversarias, se basan en la idea de que las anomalías suelen tener características distintivas en comparación con el resto de los datos, por lo que se pueden aprender a detectarlas mediante el entrenamiento de un modelo de deep learning con un conjunto de datos normal y anómalos.
-
-# Algoritmos de detección de anomalías basados en el aprendizaje no supervisado: estos algoritmos, como el clustering de DBSCAN (density-based spatial clustering of applications with noise), se basan en la idea de que las anomalías suelen tener un comportamiento diferente al del resto de los datos, por lo que se pueden detectar como aquellos que no pertenecen a ningún grupo o cluster formado por el algoritmo de clustering.
