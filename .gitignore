@@ -6,9 +6,6 @@ new_data copy.ipynb
 data
 assets
 assets/val_abs.png
-data/QLA002 Tanda 2 caja 2 dia8a_MACHO_analisisComp.txt
-data/QLA002T2M_1_clean_1.csv
-data/QLA002T2M_1.csv
 mlruns
 models
 runs/runs.csv
