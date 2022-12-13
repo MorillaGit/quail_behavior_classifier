@@ -64,37 +64,37 @@ def reshape_data_cnn(
 
     return train, test
 
-def create_model_cnn_basic( input_shape_dataset : tuple, 
-                            num_classes : int, 
-                            debug : bool = False
-                            ) -> tf.keras.Model:
+# def create_model_cnn_basic( input_shape_dataset : tuple, 
+#                             num_classes : int, 
+#                             debug : bool = False
+#                             ) -> tf.keras.Model:
 
-    """ This function creates a basic convolutional neural network model with 2 convolutional layers, 2 dense layers and a softmax layer
+#     """ This function creates a basic convolutional neural network model with 2 convolutional layers, 2 dense layers and a softmax layer
 
-    :param input_shape_dataset: shape of the input data
-    :type input_shape_dataset: tuple
-    :param num_classes: number of classes
-    :type num_classes: int
-    :param debug: is a flag to know if the function is in debug mode, defaults to False
-    :type debug: bool, optional
-    :return: return a model
-    :rtype: tf.keras.Model
-    """
+#     :param input_shape_dataset: shape of the input data
+#     :type input_shape_dataset: tuple
+#     :param num_classes: number of classes
+#     :type num_classes: int
+#     :param debug: is a flag to know if the function is in debug mode, defaults to False
+#     :type debug: bool, optional
+#     :return: return a model
+#     :rtype: tf.keras.Model
+#     """
 
-    input_shape_dataset: tuple
-    model = Sequential()
-    model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=input_shape_dataset, padding='same'))
-    model.add(MaxPooling2D(pool_size=(2, 1),padding='same'))
-    model.add(Conv2D(64, (3, 3), activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2, 1)))
-    model.add(Dropout(0.25))
-    model.add(Flatten())
-    model.add(Dense(128, activation='relu'))
-    model.add(Dropout(0.5))
-    model.add(Dense(num_classes, activation='softmax'))
-    if debug:
-        model.summary()
-    return model
+#     input_shape_dataset: tuple
+#     model = Sequential()
+#     model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=input_shape_dataset, padding='same'))
+#     model.add(MaxPooling2D(pool_size=(2, 1),padding='same'))
+#     model.add(Conv2D(64, (3, 3), activation='relu'))
+#     model.add(MaxPooling2D(pool_size=(2, 1)))
+#     model.add(Dropout(0.25))
+#     model.add(Flatten())
+#     model.add(Dense(128, activation='relu'))
+#     model.add(Dropout(0.5))
+#     model.add(Dense(num_classes, activation='softmax'))
+#     if debug:
+#         model.summary()
+#     return model
 
 def create_model_parametric(input_shape_dataset : tuple, # TODO dont work
                             num_classes : int,
@@ -273,9 +273,10 @@ def run_experiment_cnn(
     X_train, 
     y_train, 
     X_test, 
-    y_test, 
+    y_test,
+    experiment_name : str = "Default",
     epochs=10, 
-    # batch_size=32, 
+    # batch_size=32, # better results without batch size
     debug=False, 
     optimizer = Adam, 
     learning_rate = 0.005, 
@@ -289,7 +290,39 @@ def run_experiment_cnn(
         # set name experiment
         mlflow.set_experiment("CNN_T")
 
-        model = deep_learning_module.create_model_cnn_basic(input_shape, num_classes, debug=False)
+        def create_model_cnn_basic( input_shape_dataset : tuple, 
+                            num_classes : int, 
+                            debug : bool = False
+                            ) -> tf.keras.Model:
+
+            """ This function creates a basic convolutional neural network model with 2 convolutional layers, 2 dense layers and a softmax layer
+
+            :param input_shape_dataset: shape of the input data
+            :type input_shape_dataset: tuple
+            :param num_classes: number of classes
+            :type num_classes: int
+            :param debug: is a flag to know if the function is in debug mode, defaults to False
+            :type debug: bool, optional
+            :return: return a model
+            :rtype: tf.keras.Model
+            """
+
+            input_shape_dataset: tuple
+            model = Sequential()
+            model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=input_shape_dataset, padding='same'))
+            model.add(MaxPooling2D(pool_size=(2, 1),padding='same'))
+            model.add(Conv2D(64, (3, 3), activation='relu'))
+            model.add(MaxPooling2D(pool_size=(2, 1)))
+            model.add(Dropout(0.25))
+            model.add(Flatten())
+            model.add(Dense(128, activation='relu'))
+            model.add(Dropout(0.5))
+            model.add(Dense(num_classes, activation='softmax'))
+            if debug:
+                model.summary()
+            return model
+
+        model = create_model_cnn_basic(input_shape, num_classes, debug=False)
 
         mlflow.log_param("input_shape_dataset", input_shape)
         mlflow.log_param("num_classes", num_classes)
@@ -302,7 +335,7 @@ def run_experiment_cnn(
                          metrics=metrics)
 
 
-        mlflow.log_param("optimizer", optimizer)
+        # mlflow.log_param("optimizer", optimizer)
         mlflow.log_param("learning_rate", learning_rate)
         mlflow.log_param("metrics", metrics)
         mlflow.log_param("loss", loss)
@@ -316,19 +349,10 @@ def run_experiment_cnn(
                         #  batch_size=batch_size,
                          validation_data=(X_test, y_test),
                          verbose=0)
-        # log params
-        mlflow.log_param("epochs", epochs)
-        # mlflow.log_param("batch_size", batch_size)
-        # fit model
-        # history = model.fit(    X_train, 
-        #                         y_train,    
-        #                         epochs=epochs, 
-        #                         batch_size=batch_size, 
-        #                         validation_data=(X_test, y_test),
-        #                         verbose=0)
         
-        # log model
         mlflow.tensorflow.log_model(model, "model")
+        mlflow.log_param("epochs", epochs)
+
 
         # log metrics
         mlflow.log_metric("loss", history.history['loss'][-1])
@@ -336,15 +360,14 @@ def run_experiment_cnn(
         mlflow.log_metric("val_loss", history.history['val_loss'][-1])
         mlflow.log_metric("val_accuracy", history.history['val_accuracy'][-1])
 
-        # log artifacts TODO
-
         plt.plot(history.history['accuracy'])
         plt.plot(history.history['val_accuracy'])
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
         plt.title('Model accuracy')
         plt.ylabel('Accuracy')
         plt.xlabel('Epoch')
-        plt.legend(['Train', 'Test'], loc='upper left')
-        # grid on
+        plt.legend(['Train', 'Test', 'Loss', 'Val_loss'], loc='upper left')
         plt.grid()        
         	
         plt.savefig('Accuracy.png', dpi=300)  # no se exactamento donde lo guarda por lo que no puedo guardar en articafts
