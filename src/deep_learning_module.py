@@ -275,7 +275,7 @@ def run_experiment_cnn(
     X_test, 
     y_test, 
     epochs=10, 
-    batch_size=32, 
+    # batch_size=32, 
     debug=False, 
     optimizer = Adam, 
     learning_rate = 0.005, 
@@ -313,19 +313,19 @@ def run_experiment_cnn(
         # fit model
         history = model.fit(X_train, y_train,
                          epochs=epochs,
-                         batch_size=batch_size,
+                        #  batch_size=batch_size,
                          validation_data=(X_test, y_test),
                          verbose=0)
         # log params
         mlflow.log_param("epochs", epochs)
-        mlflow.log_param("batch_size", batch_size)
+        # mlflow.log_param("batch_size", batch_size)
         # fit model
-        history = model.fit(    X_train, 
-                                y_train,    
-                                epochs=epochs, 
-                                batch_size=batch_size, 
-                                validation_data=(X_test, y_test),
-                                verbose=0)
+        # history = model.fit(    X_train, 
+        #                         y_train,    
+        #                         epochs=epochs, 
+        #                         batch_size=batch_size, 
+        #                         validation_data=(X_test, y_test),
+        #                         verbose=0)
         
         # log model
         mlflow.tensorflow.log_model(model, "model")
