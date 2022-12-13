@@ -282,13 +282,14 @@ def run_experiment_cnn(
     learning_rate = 0.005, 
     metrics = ['accuracy'], 
     num_classes = 3,
-    loss = 'sparse_categorical_crossentropy'):
+    loss = 'sparse_categorical_crossentropy',
+    filters_cnn_base = [32, 64]):
 
 
     with mlflow.start_run() as run:
     
         # set name experiment
-        mlflow.set_experiment("CNN_T")
+        mlflow.set_experiment(experiment_name)
 
         def create_model_cnn_basic( input_shape_dataset : tuple, 
                             num_classes : int, 
@@ -309,9 +310,9 @@ def run_experiment_cnn(
 
             input_shape_dataset: tuple
             model = Sequential()
-            model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=input_shape_dataset, padding='same'))
+            model.add(Conv2D(filters_cnn_base[0], kernel_size=(3, 3), activation='relu', input_shape=input_shape_dataset, padding='same'))
             model.add(MaxPooling2D(pool_size=(2, 1),padding='same'))
-            model.add(Conv2D(64, (3, 3), activation='relu'))
+            model.add(Conv2D(filters_cnn_base[1], (3, 3), activation='relu'))
             model.add(MaxPooling2D(pool_size=(2, 1)))
             model.add(Dropout(0.25))
             model.add(Flatten())
@@ -325,9 +326,10 @@ def run_experiment_cnn(
         model = create_model_cnn_basic(input_shape, num_classes, debug=False)
 
         mlflow.log_param("input_shape_dataset", input_shape)
-        mlflow.log_param("num_classes", num_classes)
-        mlflow.log_param("num_layers_conv", 1)
-        mlflow.log_param("num_layers_dense", 1)
+        # mlflow.log_param("num_classes", num_classes)
+        # mlflow.log_param("num_layers_conv", 1)
+        # mlflow.log_param("num_layers_dense", 1)
+        mlflow.log_param("filter cnn base", filters_cnn_base)
 
         # create the compile
         model.compile(  optimizer=Adam(learning_rate=learning_rate),
