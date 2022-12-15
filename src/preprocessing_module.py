@@ -84,14 +84,14 @@ def envelope_aux(data: np.ndarray, distance: int) -> np.ndarray:
     
     :param data: the array to apply interpolation with envelope
     :type data: np.ndarray
-    :param sampling_rate: is the sampling rate of the data, or distance between peaks
-    :type sampling_rate: np.ndarray
+    :param distance: is the sampling rate of the data, or distance between peaks
+    :type distance: np.ndarray
     :return: the numpy array with the envelope
     :rtype: np.ndarray
     """
 
     datito = data
-    interpolation = sampling_rate
+    interpolation = distance
 
     x = np.arange(len(datito))
     inter = []
@@ -135,8 +135,8 @@ def  envelope(              data: np.ndarray,
     
     :param data: the array to apply interpolation with envelope
     :type data: np.ndarray
-    :param sampling_rate: is the sampling rate of the data, or distance between peaks
-    :type sampling_rate: np.ndarray
+    :param distance: is the sampling rate of the data, or distance between peaks
+    :type distance: np.ndarray
     :return: the numpy array with the envelope
     :rtype: np.ndarray
     """
@@ -152,7 +152,7 @@ def  envelope(              data: np.ndarray,
         u_y = sig.copy()
 
         # find upper peaks
-        u_peaks, _ = scipy.signal.find_peaks(u_y, distance=sampling_rate)
+        u_peaks, _ = scipy.signal.find_peaks(u_y, distance=distance)
 
         # use peaks and peak values to interpolate
         u_x = u_peaks
@@ -230,8 +230,6 @@ def normalize_data(
     # add to dataframe columns labels
     if columns_no_scale is not None:
         data = pd.concat([data_df[columns_no_scale], data], axis=1)
-        data = data[[c for c in data if c not in ['label']] + ['label']]
-
     return data
 
 
@@ -281,8 +279,10 @@ def split_windows(
             df_label_windows.append(label)
 
         data = data.drop(columns=['label'])
+
+        # label = int(label)
         for window, label in zip(df_list, df_label_windows):
-            window.loc[:, 'label'] = label #-------TODO solve this Warning
+            window.loc[:, 'label'] = label #-------error
     
         for window in range(len(df_list)):
             df_list[window] = pd.DataFrame(df_list[window])
@@ -378,7 +378,7 @@ def split_windows(
         arr_1 = arr_1[:, :, :-1]
         arr_2 = arr_2[:, :, :-1]
         if debug:
-            print("-----------------5--------whiteout label--------")
+            print("----------------whit label--------")
             print(  "\n","Number of windows with normal behavior : ",       len(arr_0),
                     "\nNumber of windows with reproductive event :  ",      len(arr_1),
                     "\nNumber of windows with event of interest :  ",      len(arr_2))
@@ -401,7 +401,7 @@ def split_windows(
     else:
         # arr_no_labeled = arr_no_labeled[:, :, :-1]
         if debug:
-            print("-----------------5--------whiteout label--------")
+            print("----------------whiteout label--------")
 
             print(      "\n","Number of windows with normal behavior : ", len(arr_no_labeled),        
                         "\n","The shape of each window is : ", arr_no_labeled[0].shape,
@@ -410,3 +410,175 @@ def split_windows(
 
 
         return arr_no_labeled
+
+def split_windows_2_class(
+                data : pd.DataFrame,
+                exists_labels : bool = True,
+                width_windows : int = 50, 
+                stride_windows : int = 50, 
+                debug : bool = False # TODO fix error print
+                ) -> tuple:
+    """ This function receives a pd.DataFrame and returns a numpy array with this dimensions (n_windows, width_windows, n_channels) and the minimum number of windows for each label.
+    
+
+    :param data: the dataframe to apply split
+    :type data: pd.DataFrame
+    :param exists_labels: is a flag to know if the data has a column label
+    :type exists_labels: bool optional, default True
+    :param width_windows: the width of windows
+    :type width_windows: int optional, default 50
+    :param stride_windows: the stride of windows
+    :type stride_windows: int optional, default 50
+    :param debug: is a flag to know if the function is in debug mode
+    :type debug: bool optional, default False
+    :return: tuple with a list of pd.DataFrame and the minimum number of classes unbalanced
+    :rtype: tuple
+    """
+
+    df_list = []
+    # convert dataframe in list
+    if stride_windows is None:
+        stride_windows = width_windows    
+    for i in range(0, len(data), stride_windows):
+        df_list.append(data.iloc[i:i+width_windows])
+
+    if exists_labels:
+        df_label_windows = []
+        for i in range(len(df_list)):
+            # take a max value of segment TODO parametrize this criterion
+            label = df_list[i]['label'].max()
+            df_label_windows.append(label)
+
+        data = data.drop(columns=['label'])
+
+        label = int(label)
+        for window, label in zip(df_list, df_label_windows):
+            window.loc[:, 'label'] = label #-------error
+    
+        for window in range(len(df_list)):
+            df_list[window] = pd.DataFrame(df_list[window])
+
+        # count a number of windows with different labels
+        count_0 = 0
+        count_1 = 0
+        # count_2 = 0
+        for i in df_label_windows:
+            if i == 0:
+                count_0 += 1
+            if i == 1:
+                count_1 += 1
+            # if i == 2:
+            #     count_2 += 1  
+        if debug:
+            print("--------------------Numbers of windows per class---------------------")
+            print("Number of windows with normal behavior : ",      count_0,
+                "\nNumber of windows with reproductive event :  ",  count_1)
+                # "\nNumber of windows with event of interest :  ",   count_2)
+
+        # find a min number of windows with different labels
+        min_count = min(count_0, count_1)
+
+        # selecta a equal number of windows with different labels
+        df_list_0 = []
+        df_list_1 = []
+        df_list_2 = []
+
+        for i in range(len(df_list)):
+            if df_label_windows[i] == 0:
+                df_list_0.append(df_list[i])
+            if df_label_windows[i] == 1:
+                df_list_1.append(df_list[i])
+            # if df_label_windows[i] == 2:
+            #     df_list_2.append(df_list[i])
+
+        # if debug:
+        #     print("----------Numbers of windows per class-----------")
+        #     print(  "Number of windows with normal behavior : ",  len(df_list_0),
+        #             "\nNumber of windows with reproductive event :  ", len(df_list_1),
+        #             "\nNumber of windows with event of interest :  ", len(df_list_2))
+                
+        df_class_0 = random.sample(df_list_0, min_count)
+        df_class_1 = random.sample(df_list_1, min_count)
+        # df_class_2 = random.sample(df_list_2, min_count)
+
+
+        if debug:
+            print("----Numbers of windows per class before balanced data-----")
+            print(  "Number of windows with normal behavior : ",  len(df_class_0),
+                    "\nNumber of windows with reproductive event :  ", len(df_class_1))
+                    # "\nNumber of windows with event of interest :  ", len(df_class_2))
+
+    # transform list of dataframes to numpy array whit shape = (len(df_class), 50, features)
+    def list_to_array(lista: list) -> np.ndarray:
+        array = []
+        for i in range(len(lista)):
+            array.append(lista[i].values)
+        return np.array(array)
+
+    if exists_labels:
+        arr_0 = list_to_array(df_class_0)
+        arr_1 = list_to_array(df_class_1)
+        # arr_2 = list_to_array(df_class_2)
+
+    arr_no_labeled = list_to_array(lista=df_list)
+
+
+    if debug:
+        if exists_labels:
+            print("-----------before balanced----------------")
+            print(  "\n","Number of windows with normal behavior : ",   len(arr_0),
+                    "\nNumber of windows with reproductive event :  ",  len(arr_1))
+                    # "\nNumber of windows with event of interest :  ",   len(arr_2))
+
+            print(      "\n","Number of windows with normal behavior : ",   len(arr_0),        
+                        "\n","The shape of each window is : ",              arr_0[0].shape,
+                        "\n","The shape of the array is : ",                arr_0.shape,
+                        "\n", "The type of each window is : ",              type(arr_0[0]))
+
+            print(      "\n","Number of windows with reproductive event : ",    len(arr_1),        
+                        "\n","The shape of each window is : ",                  arr_1[0].shape,
+                        "\n","The shape of the array is : ",                    arr_1.shape,
+                        "\n", "The type of each window is : ",                  type(arr_1[0]))
+
+            # print(      "\n","Number of windows with event of interest : ", len(arr_2),        
+            #             "\n","The shape of each window is : ", arr_2[0].shape,
+            #             "\n","The shape of the array is : ", arr_2.shape,
+            #             "\n", "The type of each window is : ", type(arr_2[0]))
+    if exists_labels:
+        arr_0 = arr_0[:, :, :-1]
+        arr_1 = arr_1[:, :, :-1]
+        # arr_2 = arr_2[:, :, :-1]
+        if debug:
+            print("----------------whit label--------")
+            print(  "\n","Number of windows with normal behavior : ",       len(arr_0),
+                    "\nNumber of windows with reproductive event :  ",      len(arr_1),
+                    "\nNumber of windows with event of interest :  ",      len(arr_2))
+
+            print(      "\n","Number of windows with normal behavior : ", len(arr_0),        
+                        "\n","The shape of each window is : ", arr_0[0].shape,
+                        "\n","The shape of the array is : ", arr_0.shape,
+                        "\n", "The type of each window is : ", type(arr_0[0]))
+
+            print(      "\n","Number of windows with reproductive event : ", len(arr_1),        
+                        "\n","The shape of each window is : ", arr_1[0].shape,
+                        "\n","The shape of the array is : ", arr_1.shape,
+                        "\n", "The type of each window is : ", type(arr_1[0]))
+
+            # print(      "\n","Number of windows with event of interest : ", len(arr_2),        
+            #             "\n","The shape of each window is : ", arr_2[0].shape,
+            #             "\n","The shape of the array is : ", arr_2.shape,
+            #             "\n", "The type of each window is : ", type(arr_2[0]))
+        return arr_0, arr_1, min_count
+    else:
+        # arr_no_labeled = arr_no_labeled[:, :, :-1]
+        if debug:
+            print("----------------whiteout label--------")
+
+            print(      "\n","Number of windows with normal behavior : ", len(arr_no_labeled),        
+                        "\n","The shape of each window is : ", arr_no_labeled[0].shape,
+                        "\n","The shape of the array is : ", arr_no_labeled.shape,
+                        "\n", "The type of each window is : ", type(arr_no_labeled[0]))
+
+
+        return arr_no_labeled
+
