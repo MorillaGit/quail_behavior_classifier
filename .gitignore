@@ -20,3 +20,4 @@ model2020221208-203312.h5
 .vs
 data_zipped/chb01_03.edf
 main_sz.ipynb
+make_predictions.ipynb
