@@ -63,15 +63,15 @@ def arr_to_dataframe(   data_to_add: np.ndarray,
                         ) -> pd.DataFrame:
     """This function convert a numpy array to a pandas DataFrame and add to the data_base
 
-    :param data_to_add: _description_ TODO complete
+    :param data_to_add: data in format array TODO complete
     :type data_to_add: np.ndarray
-    :param data_base: _description_
+    :param data_base: data in format DataFrame, data raw
     :type data_base: pd.DataFrame
-    :param names_new_columns: _description_
+    :param names_new_columns: names of the new columns, the number of columns must be equal to the number of columns of data_to_add
     :type names_new_columns: list
-    :param debug: _description_, defaults to False
+    :param debug: this parameter is used for debug the function, printing the name of columns generated, defaults to False
     :type debug: bool, optional
-    :return: _description_
+    :return: a DataFrame with the data_base and the data_to_add
     :rtype: pd.DataFrame
     """
 
