@@ -64,71 +64,6 @@ def reshape_data_cnn(
 
     return train, test
 
-# def create_model_cnn_basic( input_shape_dataset : tuple, 
-#                             num_classes : int, 
-#                             debug : bool = False
-#                             ) -> tf.keras.Model:
-
-#     """ This function creates a basic convolutional neural network model with 2 convolutional layers, 2 dense layers and a softmax layer
-
-#     :param input_shape_dataset: shape of the input data
-#     :type input_shape_dataset: tuple
-#     :param num_classes: number of classes
-#     :type num_classes: int
-#     :param debug: is a flag to know if the function is in debug mode, defaults to False
-#     :type debug: bool, optional
-#     :return: return a model
-#     :rtype: tf.keras.Model
-#     """
-
-#     input_shape_dataset: tuple
-#     model = Sequential()
-#     model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=input_shape_dataset, padding='same'))
-#     model.add(MaxPooling2D(pool_size=(2, 1),padding='same'))
-#     model.add(Conv2D(64, (3, 3), activation='relu'))
-#     model.add(MaxPooling2D(pool_size=(2, 1)))
-#     model.add(Dropout(0.25))
-#     model.add(Flatten())
-#     model.add(Dense(128, activation='relu'))
-#     model.add(Dropout(0.5))
-#     model.add(Dense(num_classes, activation='softmax'))
-#     if debug:
-#         model.summary()
-#     return model
-
-def create_model_parametric(input_shape_dataset : tuple, # TODO dont work
-                            num_classes : int,
-                            debug : bool = False,
-                            filters_base : int = 32,                            
-                            ) -> tf.keras.Model:
-    """_summary_
-
-    :param input_shape_dataset: _description_
-    :type input_shape_dataset: tuple
-    :param num_classes: _description_
-    :type num_classes: int
-    :param debug: _description_, defaults to False
-    :type debug: bool, optional
-    :param filters_base: _description_, defaults to 32
-    :type filters_base: int, optional
-    :return: _description_
-    :rtype: tf.keras.Model
-    """
-    model = Sequential()
-    model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=input_shape_dataset, padding='same'))
-    model.add(MaxPooling2D(pool_size=(2, 1),padding='same'))
-    model.add(Conv2D(64, (3, 3), activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2, 1)))
-    model.add(Dropout(0.25))
-    model.add(Flatten())
-    model.add(Dense(128, activation='relu'))
-    model.add(Dropout(0.5))
-    model.add(Dense(num_classes, activation='softmax'))
-    if debug:
-        model.summary()
-    return model
-# TODO not working
-
 def build_cnn_complex(
             input_shape : tuple,
             num_classes : int,
@@ -285,6 +220,10 @@ def run_experiment_cnn(
     loss = 'sparse_categorical_crossentropy',
     filters_cnn_base = [32, 64]):
 
+    # TODO add description of the function
+
+    X_train = X_train.astype('float32')
+    X_test = X_test.astype('float32')
 
     with mlflow.start_run() as run:
     
