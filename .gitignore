@@ -24,3 +24,4 @@ make_predictions.ipynb
 .vscode/settings.json
 __pycache__/streamlit.cpython-39.pyc
 test_stramlit/
+test_spectrogram/
