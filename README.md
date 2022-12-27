@@ -1,15 +1,10 @@
-
-<details>
-<summary>traslations:</summary>
-- [Español]( ./README-sp.md )
-</details>
-
+[Español]( README-sp.md )
 
 
 # Quail Time Series Analysis / Quail Behavior Classifier / Quail Research Tools
 
 
-![ethereal Bohemian Waxwing bird, Bombycilla garrulus :: intricate details, ornate, detailed illustration, octane render :: Johanna Rupprecht style, William Morris style :: trending on artstation --ar 9:16 - Midjourney v3 - Author ](https://storage.googleapis.com/dream-machines-output/a21d76a4-dc99-486f-9994-def7021bd6dd/0_0.png)
+![ethereal Bohemian Waxwing bird, Bombycilla garrulus :: intricate details, ornate, detailed illustration, octane render :: Johanna Rupprecht style, William Morris style :: trending on artstation --ar 9:16 - Midjourney v3 - Author ](assets/quail_rescaled.png)
 
 
 Quail are small birds that are commonly used in research studies due to their unique behavior and cognitive abilities. However, tracking and analyzing the behavior of quail can be challenging, especially when using traditional methods such as manual observation or video tracking. In this project, we present an open source solution for the detection and classification of quail behavior using time series data from accelerometers. By leveraging the power of machine learning and time series analysis, our approach enables the automatic and accurate tracking of quail behavior in a variety of research settings. With this tool, researchers can easily experiment with different machine learning models and feature engineering techniques to gain valuable insights into the behavior and cognitive abilities of quail. In addition, this tool can be used to test the effectiveness of different interventions or treatments on quail behavior.

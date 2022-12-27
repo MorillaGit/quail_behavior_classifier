@@ -1,12 +1,9 @@
 
-<details>
-<summary>Traducciones:</summary>
-- [English](./README.md)
-</details>
+[English](README.md)
 
 # Análisis de series temporales de codornices / Clasificador de comportamiento de codornices / Herramientas de investigación de codornices
 
-![ethereal Bohemian Waxwing bird, Bombycilla garrulus :: intricate details, ornate, detailed illustration, octane render :: Johanna Rupprecht style, William Morris style :: trending on artstation --ar 9:16 - Midjourney v3 - Author ](https://storage.googleapis.com/dream-machines-output/a21d76a4-dc99-486f-9994-def7021bd6dd/0_0.png)
+![ethereal Bohemian Waxwing bird, Bombycilla garrulus :: intricate details, ornate, detailed illustration, octane render :: Johanna Rupprecht style, William Morris style :: trending on artstation --ar 9:16 - Midjourney v3 - Author ](assets/quail_rescaled.png)
 
 Las codornices son aves pequeñas que se usan comúnmente en estudios de investigación debido a su comportamiento único y habilidades cognitivas. Sin embargo, rastrear y analizar el comportamiento de las codornices puede ser un desafío, especialmente cuando se utilizan métodos tradicionales como la observación manual o el seguimiento por video. En este proyecto, presentamos una solución de código abierto para la detección y clasificación del comportamiento de las codornices utilizando datos de series temporales de acelerómetros. Al aprovechar el poder del aprendizaje automático y el análisis de series temporales, nuestro enfoque permite el seguimiento automático y preciso del comportamiento de las codornices en una variedad de entornos de investigación. Con esta herramienta, los investigadores pueden experimentar fácilmente con diferentes modelos de aprendizaje automático y técnicas de ingeniería de funciones para obtener información valiosa sobre el comportamiento y las habilidades cognitivas de las codornices. Además, esta herramienta se puede utilizar para probar la eficacia de diferentes intervenciones o tratamientos sobre el comportamiento de las codornices.
 
@@ -59,7 +56,7 @@ Este proyecto es una herramienta de código abierto para la detección y clasifi
 
 ## 2. Data
 
-![asd](../assets/quail_backpack.png)
+![image generate stable difusion - propmp " a quail with a large backpack"](assets/quail_backpack.png)
 
 Los datos para este proyecto se recolectaron usando acelerómetros conectados a la espalda de codornices. Los acelerómetros fueron colocados en pequeñas mochilas y llevados por las codornices mientras realizaban diversos comportamientos. Luego, los datos del acelerómetro fueron registrados y etiquetados por investigadores que vieron videos de las codornices y anotaron manualmente cada cuadro con el comportamiento correspondiente.
 
