@@ -1,7 +1,7 @@
 
 <details>
 <summary>traslations:</summary>
-- [Español](traslations/README-sp.md)
+- [Español]( ./README-sp.md )
 </details>
 
 

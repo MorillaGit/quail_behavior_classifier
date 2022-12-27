@@ -1,7 +1,7 @@
 
 <details>
 <summary>Traducciones:</summary>
-- [English](../README.md)
+- [English](./README.md)
 </details>
 
 # Análisis de series temporales de codornices / Clasificador de comportamiento de codornices / Herramientas de investigación de codornices
