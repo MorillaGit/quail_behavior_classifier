@@ -218,7 +218,10 @@ def run_experiment_cnn(
     metrics = ['accuracy'], 
     num_classes = 3,
     loss = 'sparse_categorical_crossentropy',
-    filters_cnn_base = [32, 64]):
+    filters_cnn_base = [32, 64, 124],
+    kernel_size_cnn_base = [(3,3), (3,3), (3,3)],
+    pool_size_cnn_base = [(2,2), (2,2), (2,2)]
+    ):
 
     # TODO add description of the function
 
@@ -230,9 +233,9 @@ def run_experiment_cnn(
         # set name experiment
         mlflow.set_experiment(experiment_name)
 
-        def create_model_cnn_basic( input_shape_dataset : tuple, 
-                            num_classes : int, 
-                            debug : bool = False
+        def create_model_cnn_basic( input_shape_dataset : tuple = input_shape, 
+                            num_classes : int = num_classes, 
+                            debug_model : bool = False
                             ) -> tf.keras.Model:
 
             """ This function creates a basic convolutional neural network model with 2 convolutional layers, 2 dense layers and a softmax layer
@@ -241,17 +244,23 @@ def run_experiment_cnn(
             :type input_shape_dataset: tuple
             :param num_classes: number of classes
             :type num_classes: int
-            :param debug: is a flag to know if the function is in debug mode, defaults to False
-            :type debug: bool, optional
+            :param debug_model: is a flag to know if the function is in debug mode, defaults to False
+            :type debug_model: bool, optional
             :return: return a model
             :rtype: tf.keras.Model
             """
 
+            if debug:
+                # change debug_model to True
+                debug_model = True
+
             input_shape_dataset: tuple
             model = Sequential()
-            model.add(Conv2D(filters_cnn_base[0], kernel_size=(3, 3), activation='relu', input_shape=input_shape_dataset, padding='same'))
+            model.add(Conv2D(filters_cnn_base[0], kernel_size=kernel_size_cnn_base[0], activation='relu', input_shape=input_shape_dataset, padding='same'))
             model.add(MaxPooling2D(pool_size=(2, 1),padding='same'))
-            model.add(Conv2D(filters_cnn_base[1], (3, 3), activation='relu'))
+            model.add(Conv2D(filters_cnn_base[1], kernel_size_cnn_base[1], activation='relu'))
+            model.add(MaxPooling2D(pool_size=(2, 1)))
+            model.add(Conv2D(filters_cnn_base[2], kernel_size_cnn_base[2], activation='relu'))
             model.add(MaxPooling2D(pool_size=(2, 1)))
             model.add(Dropout(0.25))
             model.add(Flatten())
@@ -262,13 +271,18 @@ def run_experiment_cnn(
                 model.summary()
             return model
 
-        model = create_model_cnn_basic(input_shape, num_classes, debug=False)
+        model = create_model_cnn_basic(debug_model=False)
 
         mlflow.log_param("input_shape_dataset", input_shape)
-        # mlflow.log_param("num_classes", num_classes)
-        # mlflow.log_param("num_layers_conv", 1)
-        # mlflow.log_param("num_layers_dense", 1)
+        mlflow.log_param("num_classes", num_classes)
+        mlflow.log_param("kernel_size_cnn_base", kernel_size_cnn_base)
+        mlflow.log_param("pool_size_cnn_base", pool_size_cnn_base)
         mlflow.log_param("filter cnn base", filters_cnn_base)
+
+        # save summary of the model
+        # with open("model_summary.txt", "w") as fh:
+        #     model.summary(print_fn=lambda line: fh.write(line + "\n"))
+
 
         # create the compile
         model.compile(  optimizer=Adam(learning_rate=learning_rate),
@@ -325,7 +339,9 @@ def run_experiment_cnn(
         # log confusion matrix
         cm = confusion_matrix(y_test, y_pred)
         fig, ax = plt.subplots(figsize=(10,10))
-        sns.heatmap(cm, annot=True, fmt="d", linewidths=.5, square = True, cmap = 'Blues_r'); 
+        sns.heatmap(cm, annot=True, fmt="d", linewidths=.5, square = True, cmap = 'Blues_r', ax=ax); 
+        plt.ylabel('Actual label');
+        plt.xlabel('Predicted label');
         plt.savefig('confusion_matrix.png', dpi=300)
         mlflow.log_artifact('confusion_matrix.png')
 
