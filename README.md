@@ -67,7 +67,7 @@ This project is an open source tool for the detection and classification of quai
 
 ## 2. Data
 
-![asd](assets/images_1.png)
+![image generate stable difusion - propmp " a quail with a large backpack"](assets/quail_backpack.png)
 
 The data for this project was collected using accelerometers attached to the backs of quail. The accelerometers were placed in small backpacks and worn by the quail while they performed various behaviors. The accelerometer data was then recorded and labeled by researchers who watched videos of the quail and manually annotated each frame with the corresponding behavior.
 

@@ -4,7 +4,7 @@ confusion_matrix.png
 model2020221207-183355.h5
 new_data copy.ipynb
 data
-assets
+
 assets/val_abs.png
 mlruns
 models
@@ -25,3 +25,14 @@ make_predictions.ipynb
 __pycache__/streamlit.cpython-39.pyc
 test_stramlit/
 test_spectrogram/
+assets/artifacts.png
+assets/dataset_fransua.png
+assets/desequilibre.png
+assets/envolve.png
+assets/first_results.png
+assets/like_image.png
+assets/norm_data.png
+assets/output.png
+assets/signal_normal_dark.png
+assets/signal_segment.png
+assets/split_windows.png
