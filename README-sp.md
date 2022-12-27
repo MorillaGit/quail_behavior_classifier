@@ -56,11 +56,7 @@ Este proyecto es una herramienta de código abierto para la detección y clasifi
 
 ## 2. Data
 
-<<<<<<< HEAD
 ![image generate stable difusion - propmp " a quail with a large backpack"](assets/quail_backpack.png)
-=======
-![asd](assets/quail_backpack.png)
->>>>>>> 88770df6194307c1fd334eb42e5d51fd828c7ad7
 
 Los datos para este proyecto se recolectaron usando acelerómetros conectados a la espalda de codornices. Los acelerómetros fueron colocados en pequeñas mochilas y llevados por las codornices mientras realizaban diversos comportamientos. Luego, los datos del acelerómetro fueron registrados y etiquetados por investigadores que vieron videos de las codornices y anotaron manualmente cada cuadro con el comportamiento correspondiente.
 
