@@ -79,6 +79,8 @@ def run_experiment_cnn(
     padding_exp: str = "same",
 ):
 
+    #TODO all list to be None and add to code
+
     """This function runs an experiment with a convolutional neural network model
 
     :param input_shape: shape of the input data
