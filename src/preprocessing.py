@@ -251,7 +251,8 @@ def split_windows(
     exists_labels: bool = True,
     width_windows: int = 50,
     stride_windows: int = 50,
-    debug: bool = False,  # TODO fix error print
+    balanced: bool = True,
+    debug: bool = False,
 ) -> tuple:
     """This function receives a pd.DataFrame and returns a numpy array with this dimensions (n_windows, width_windows, n_channels) and the minimum number of windows for each label.
 
@@ -264,6 +265,8 @@ def split_windows(
     :type width_windows: int optional, default 50
     :param stride_windows: the stride of windows
     :type stride_windows: int optional, default 50
+    :param balanced: is a flag to know if the data is balanced
+    :type balanced: bool optional, default True
     :param debug: is a flag to know if the function is in debug mode
     :type debug: bool optional, default False
     :return: tuple with a list of pd.DataFrame and the minimum number of classes unbalanced
@@ -418,8 +421,11 @@ def split_windows(
                     type(arr_2[0]),
                     "\n\n",
                 )
-        return arr_0, arr_1, arr_2, min_count
 
+        if balanced:
+            return arr_0, arr_1, arr_2, min_count
+        else:
+            return df_list
     # TODO add mode no label
     # if exists_labels:
     #     arr_0 = arr_0[:, :, :-1]
