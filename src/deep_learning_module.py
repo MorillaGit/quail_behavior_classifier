@@ -10,6 +10,10 @@ from tensorflow.keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2
 from tensorflow.keras.optimizers import Adam
 from sklearn.metrics import confusion_matrix
 from tensorflow.keras.metrics import AUC
+import keras
+
+import warnings
+warnings.filterwarnings('ignore')
 
 
 def reshape_data_cnn(
@@ -125,7 +129,7 @@ def run_experiment_cnn(
     X_train = X_train.astype("float32")
     X_test = X_test.astype("float32")
 
-    with mlflow.start_run() as run:
+    with mlflow.start_run(nested=True) as run:
 
         # set name experiment
         mlflow.set_experiment(experiment_name)
@@ -209,11 +213,11 @@ def run_experiment_cnn(
             optimizer=Adam(learning_rate=learning_rate), loss=loss, metrics=metrics
         )
 
-        with mlflow.start_run():
+        # with mlflow.start_run():
             # mlflow.log_param("optimizer", optimizer)
-            mlflow.log_param("learning_rate", learning_rate)
-            mlflow.log_param("metrics", metrics)
-            mlflow.log_param("loss", loss)
+        mlflow.log_param("learning_rate", learning_rate)
+        mlflow.log_param("metrics", metrics)
+        mlflow.log_param("loss", loss)
 
         # log interpolation
         # mlflow.log_param("interpolation", interpolation)
@@ -287,9 +291,9 @@ def run_experiment_rnn(
     # batch_size=32, # better results without batch size
     debug: bool = False,
     learning_rate: float = 0.001,
-    metrics: list = ["AUC()"],
+    metrics: list = ['accuracy'],
     num_classes: int = 3,
-    loss: str = "sparse_categorical_crossentropy",
+    loss: str = "categorical_crossentropy",
     num_units_lstm_base: int = 32,
     dropout_rate: float = 0.2,
     num_units_dense_base: int = 32,
@@ -333,13 +337,15 @@ def run_experiment_rnn(
 
             input_shape_dataset: tuple
             model = Sequential()
-            model.add(
-                LSTM(
+            model.add(LSTM(
                     num_units_lstm_base,
-                    input_shape=input_shape_dataset,
-                    return_sequences=True,
-                )
-            )
+                    input_shape=input_shape_dataset
+                ))
+            model.add(Dropout(dropout_rate))
+            model.add(Dense(num_units_dense_base, activation="relu"))
+            model.add(Dropout(dropout_rate))
+            model.add(Dense(num_classes, activation="softmax"))
+
             return model
 
         model = create_model_lstm_basic()
@@ -369,15 +375,51 @@ def run_experiment_rnn(
 
         # log interpolation
         # mlflow.log_param("interpolation", interpolation)
+        from keras.callbacks import Callback
+        import sys
+
+        class ProgressCallback(Callback):
+            def __init__(self, epochs):
+                self.epochs = epochs
+
+            def on_train_begin(self, logs={}):
+                self.seen = 0
+
+            def on_epoch_end(self, epoch, logs={}):
+                self.seen += logs.get('size', 0)
+                # Calcula el porcentaje de progreso
+                progress = self.seen / (X_train.shape[0] * self.epochs) * 100
+                # Imprime la barra de progreso personalizada
+                sys.stdout.write('\rEpoch {}/{} [{}]'.format(epoch + 1, self.epochs, '#' * int(progress/10)))
+
+        class CustomProgressBar(keras.callbacks.Callback):
+            def __init__(self, X_train):
+                self.X_train = X_train
+                self.seen = 0
+
+            def on_batch_end(self, batch, logs=None):
+                self.seen += self.X_train.shape[0] / batch
+                print(f"Processed: {self.seen:.2f}/{self.params['steps'] * self.params['epochs']:.2f}")
+
+            def on_train_end(self, logs=None):
+                print("\nTraining finished.")
+
+        progress_callback = ProgressCallback(epochs)
 
         # fit model
         history = model.fit(
             X_train,
             y_train,
             epochs=epochs,
+            batch_size=32,
             #  batch_size=batch_size,
             validation_data=(X_test, y_test),
             verbose=0,
+            callbacks=[
+                # CustomProgressBar(X_train=X_train),
+
+                progress_callback
+                ]
         )
 
         mlflow.tensorflow.log_model(model, "model")
@@ -411,15 +453,15 @@ def run_experiment_rnn(
         # np.savetxt('y_pred.csv', y_pred, delimiter=',')
         # mlflow.log_artifact('y_pred.csv')
 
-        cm = confusion_matrix(y_test, y_pred)
-        _, ax = plt.subplots(figsize=(10, 10))
-        sns.heatmap(
-            cm, annot=True, fmt="d", linewidths=0.5, square=True, cmap="Blues_r", ax=ax
-        )
-        plt.ylabel("Actual label")
-        plt.xlabel("Predicted label")
-        plt.savefig("confusion_matrix.png", dpi=300)
-        mlflow.log_artifact("confusion_matrix.png")
+        # cm = confusion_matrix(y_test, y_pred)
+        # _, ax = plt.subplots(figsize=(10, 10))
+        # sns.heatmap(
+        #     cm, annot=True, fmt="d", linewidths=0.5, square=True, cmap="Blues_r", ax=ax
+        # )
+        # plt.ylabel("Actual label")
+        # plt.xlabel("Predicted label")
+        # plt.savefig("confusion_matrix.png", dpi=300)
+        # mlflow.log_artifact("confusion_matrix.png")
 
         if debug:
             print("run_id: {}".format(run.info.run_id))
